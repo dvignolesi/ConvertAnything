@@ -7,10 +7,9 @@
 #include <QGridLayout>
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <QSignalMapper>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -21,8 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //              3. Widgets for each of the conversion units that go into
     //                  each new tab
     QStringList units;
-    QString unitType;
-    QList<double> numbersToConvert;
+    int whoSignaled;
 
     //Makes tabs use available space
     ui->tabWidget->setUsesScrollButtons(0);
@@ -102,11 +100,20 @@ MainWindow::MainWindow(QWidget *parent) :
     KelvinDblSpinbox->setRange(0, 999999999);
     RankineDblSpinbox->setRange(0, 999999999);
 
-    connect(FahrenheitDblSpinbox,SIGNAL(valueChanged(double d)),this,
-            SLOT(on_userInput(QList<double>* numbersToConvert, int i = 1,
-                              modifiedSpinbox* FahrenheitDblSpinbox,modifiedSpinbox* CelciusDblSpinbox,
-                              modifiedSpinbox* KelvinDblSpinbox, modifiedSpinbox* RankineDblSpinbox)));
-}
+    // Creates a signal mapper that allows passing of a parameter
+    // to the convert functions anytime a number is entered
+    QSignalMapper *tempMapper = new QSignalMapper(this);
+
+    // Connects the spinbox editing complete signal with the mapper
+    connect(tempMapper, SIGNAL(mapped(int)),
+            this,SLOT(on_userInput(int whoSignaled)));
+    // Connects the mapper with the function that calls the convert class
+    connect(FahrenheitDblSpinbox, SIGNAL(editingFinished()),
+            tempMapper, SLOT(map()));
+    tempMapper->setMapping(FahrenheitDblSpinbox, FahrenheitDblSpinbox);
+
+
+  }
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -132,32 +139,33 @@ void MainWindow::on_tabClicked()
     ui->listWidget->setCurrentRow(ui->tabWidget->currentIndex());
 }
 
-void on_userInput(QList<double> *numbersToConvert, int whoSignaled,
-                  modifiedSpinbox *F, modifiedSpinbox *C, modifiedSpinbox *K, modifiedSpinbox *R)
+void MainWindow::on_userInput(int whoSignaled)
 {
-    ConvertTools *ct = new ConvertTools();
-    ct->tempMath(*numbersToConvert, whoSignaled);
-    switch(whoSignaled) {
-    case 1:
-        C->setValue(numbersToConvert->at(2));
-        K->setValue(numbersToConvert->at(3));
-        R->setValue(numbersToConvert->at(4));
-        break;
-    case 2:
-        F->setValue(numbersToConvert->at(1));
-        K->setValue(numbersToConvert->at(3));
-        R->setValue(numbersToConvert->at(4));
-        break;
-    case 3:
-        F->setValue(numbersToConvert->at(1));
-        C->setValue(numbersToConvert->at(2));
-        R->setValue(numbersToConvert->at(4));
-        break;
-    case 4:
-        F->setValue(numbersToConvert->at(1));
-        C->setValue(numbersToConvert->at(2));
-        K->setValue(numbersToConvert->at(3));
-        break;
-    }
+//    ConvertTools *ct = new ConvertTools;
+//    ct->tempMath(numbersToConvert, whoSignaled);
+
+
+//    switch(whoSignaled) {
+//    case 1:
+//        C->setValue(numbersToConvert->at(2));
+//        K->setValue(numbersToConvert->at(3));
+//        R->setValue(numbersToConvert->at(4));
+//        break;
+//    case 2:
+//        F->setValue(numbersToConvert->at(1));
+//        K->setValue(numbersToConvert->at(3));
+//        R->setValue(numbersToConvert->at(4));
+//        break;
+//    case 3:
+//        F->setValue(numbersToConvert->at(1));
+//        C->setValue(numbersToConvert->at(2));
+//        R->setValue(numbersToConvert->at(4));
+//        break;
+//    case 4:
+//        F->setValue(numbersToConvert->at(1));
+//        C->setValue(numbersToConvert->at(2));
+//        K->setValue(numbersToConvert->at(3));
+//        break;
+//    }
 
 }

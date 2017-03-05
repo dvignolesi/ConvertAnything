@@ -17,6 +17,8 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+
+
     ~MainWindow();
 
 private slots:
@@ -24,10 +26,7 @@ private slots:
     void on_actionAbout_triggered();
     void on_listWidgetClicked(QListWidgetItem *item);
     void on_tabClicked();
-    void on_userInput(QList<double> *numbersToConvert, int whoSignaled,
-                      modifiedSpinbox *F, modifiedSpinbox *C, modifiedSpinbox *K, modifiedSpinbox *R);
-    void tempMath(QList<double> *numbersToConvert, int whoSignaled);
-
+    void on_userInput(int whoSignaled);
 private:
     Ui::MainWindow *ui;
 };
